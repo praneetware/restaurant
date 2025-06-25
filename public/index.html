@@ -305,21 +305,50 @@
       const tbody = document.getElementById('inventory-body');
       tbody.innerHTML = '';
       Object.entries(inventoryData).forEach(([ing, qty]) => {
-        const tr = document.createElement('tr');
-        if (qty <= 5) tr.classList.add('low-stock');
-        tr.innerHTML = `<td>${ing}</td><td>${qty}</td><td>${qty > 5 ? 'Available' : 'Low Stock'}</td><td><button class="restock-button" onclick="restockIngredient('${ing}')">Restock</button></td>`;
-        tbody.appendChild(tr);
-      });
-      const list = Object.entries(menuIngredients).map(([dish, ings]) =>
-        `${dish}:\n${Object.entries(ings).map(([i, q]) => `  - ${i}: ${q}`).join('\n')}`).join('\n\n');
-      document.getElementById('ingredients-list').textContent = list;
-    }
+      const tr = document.createElement('tr');
+      if (qty <= 5) tr.classList.add('low-stock');
+      tr.innerHTML = `
+      <td>${ing}</td>
+      <td id="qty-${ing}">${qty}</td>
+      <td>${qty > 5 ? 'Available' : 'Low Stock'}</td>
+      <td>
+        <input type="number" id="input-${ing}" min="1" placeholder="Qty" style="width:60px;"/>
+        <button class="restock-button" onclick="restockIngredient('${ing}')">Restock</button>
+      </td>`;
+      tbody.appendChild(tr);
+    });
+
+  const list = Object.entries(menuIngredients).map(([dish, ings]) =>
+    `${dish}:\n${Object.entries(ings).map(([i, q]) => `  - ${i}: ${q}`).join('\n')}`).join('\n\n');
+  document.getElementById('ingredients-list').textContent = list;
+}
 
     function restockIngredient(ingredient) {
-      inventoryData[ingredient] = MAX_QUANTITY;
-      loadInventory();
-      alert(`${ingredient} restocked.`);
+      const input = document.getElementById(`input-${ingredient}`);
+      const amount = parseInt(input.value);
+
+      if (isNaN(amount) || amount <= 0) {
+        alert("Please enter a valid positive quantity.");
+        return;
+      }
+
+      fetch('/api/restock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: ingredient, amount })
+      })
+      .then(res => res.json())
+      .then(data => {
+        inventoryData[ingredient] += amount;
+        loadInventory();
+        alert(`${ingredient} restocked by ${amount}.`);
+      })
+      .catch(err => {
+        console.error('Restock error:', err);
+        alert('Failed to restock.');
+      });
     }
+
 
     function placeOrder() {
       const name = document.getElementById('custName').value.trim();
