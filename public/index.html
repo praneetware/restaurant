@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Restaurant Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f8f8;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-around;
+      background-color: #333;
+      padding: 15px 0;
+    }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .navbar a:hover {
+      color: #ffcc00;
+    }
+    .category, .inventory-section {
+      padding: 20px;
+    }
+    .category h2, .inventory-section h2 {
+      border-left: 6px solid #ff6600;
+      padding-left: 10px;
+      color: #444;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
+      padding: 10px 0;
+    }
+    .menu-item {
+      background-color: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .menu-item img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    .menu-item .name {
+      margin: 8px 0;
+      font-weight: bold;
+    }
+    .qty-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 5px;
+    }
+    .qty-controls button {
+      padding: 4px 10px;
+      margin: 0 5px;
+      background-color: #ff6600;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .qty-controls button:hover {
+      background-color: #e65c00;
+    }
+    .qty-controls span {
+      width: 20px;
+      display: inline-block;
+      text-align: center;
+      font-weight: bold;
+    }
+    .inventory-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    .inventory-table th, .inventory-table td {
+      padding: 12px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+    .inventory-table th {
+      background-color: #f4f4f4;
+    }
+    .low-stock {
+      background-color: #ffe0e0;
+    }
+    .restock {
+      color: red;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .hidden {
+      display: none;
+    }
+    .order-form {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: 20px auto;
+    }
+    .order-form label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    .order-form input {
+      width: 100%;
+      padding: 6px 8px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    .order-button {
+      margin-top: 15px;
+      background-color: #28a745;
+      color: white;
+      font-weight: bold;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      display: block;
+      width: 100%;
+    }
+    .order-button:hover {
+      background-color: #218838;
+    }
+    #orders-section {
+      padding: 20px;
+    }
+    #orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    #orders-table th, #orders-table td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+      vertical-align: top;
+    }
+    .ingredients-list {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #666;
+      background: #fafafa;
+      padding: 15px;
+      border-radius: 6px;
+      max-width: 600px;
+      font-family: monospace;
+      white-space: pre-wrap;
+      user-select: none;
+    }
+    .restock-button {
+      background: none;
+      border: none;
+      color: #d9534f;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: underline;
+      padding: 0;
+      font-size: 14px;
+    }
+    .restock-button:hover {
+      color: #c9302c;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <div class="navbar">
+    <a onclick="showSection('menu-section')">Home</a>
+    <a onclick="showSection('orders-section')">Your Orders</a>
+    <a onclick="showSection('inventory-section')">Inventory</a>
+  </div>
+
+  <!-- Menu Section -->
+  <div id="menu-section">
+    <div class="category">
+      <h2>Starters</h2>
+      <div class="grid">
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Samosa"><div class="name">Samosa</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Paneer+Tikka"><div class="name">Paneer Tikka</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Spring+Rolls"><div class="name">Spring Rolls</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+      </div>
+    </div>
+
+    <div class="category">
+      <h2>Main Course</h2>
+      <div class="grid">
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Butter+Chicken"><div class="name">Butter Chicken</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Palak+Paneer"><div class="name">Palak Paneer</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Dal+Tadka"><div class="name">Dal Tadka</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+      </div>
+    </div>
+
+    <div class="category">
+      <h2>Chinese</h2>
+      <div class="grid">
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Fried+Rice"><div class="name">Fried Rice</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Manchurian"><div class="name">Manchurian</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Noodles"><div class="name">Noodles</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+      </div>
+    </div>
+
+    <div class="category">
+      <h2>Desserts</h2>
+      <div class="grid">
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Gulab+Jamun"><div class="name">Gulab Jamun</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Rasgulla"><div class="name">Rasgulla</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+        <div class="menu-item"><img src="https://via.placeholder.com/160x100?text=Ice+Cream"><div class="name">Ice Cream</div><div class="qty-controls"><button onclick="decrease(this)">−</button><span>0</span><button onclick="increase(this)">+</button></div></div>
+      </div>
+    </div>
+
+    <div class="order-form">
+      <h3>Place Your Order</h3>
+      <label for="custName">Name*</label>
+      <input type="text" id="custName" placeholder="Your name" required />
+      <label for="custContact">Contact Number</label>
+      <input type="tel" id="custContact" placeholder="Phone number" />
+      <label for="tableNo">Table Number</label>
+      <input type="number" id="tableNo" min="1" placeholder="Table number (optional)" />
+      <button class="order-button" onclick="placeOrder()">Place Order</button>
+    </div>
+  </div>
+
+  <!-- Orders and Inventory sections -->
+  <div id="orders-section" class="hidden"><h2>Your Orders</h2><table id="orders-table"><thead><tr><th>Name</th><th>Contact</th><th>Table No</th><th>Items Ordered</th></tr></thead><tbody id="orders-body"></tbody></table></div>
+  <div id="inventory-section" class="inventory-section hidden"><h2>Inventory Overview</h2><table class="inventory-table"><thead><tr><th>Ingredient</th><th>Quantity</th><th>Status</th><th>Restock</th></tr></thead><tbody id="inventory-body"></tbody></table><div class="ingredients-list" id="ingredients-list"></div></div>
+
+  <script>
+    const MAX_QUANTITY = 50;
+    let inventoryData = {
+      "Potatoes": 20, "Oil": 50, "Paneer": 30, "Cabbage": 15, "Chicken": 25,
+      "Spinach": 20, "Lentils": 25, "Rice": 40, "Spices": 30, "Cream": 20,
+      "Flour": 35, "Milk": 30, "Sugar": 25, "Tomatoes": 18, "Gulab Syrup": 10,
+      "Cheese": 15, "Butter": 20, "Vegetables": 15, "Flavors": 10
+    };
+
+    const menuIngredients = {
+      "Samosa": { "Potatoes": 2, "Flour": 1, "Oil": 1, "Spices": 1 },
+      "Paneer Tikka": { "Paneer": 3, "Oil": 1, "Spices": 1, "Cream": 1 },
+      "Spring Rolls": { "Cabbage": 2, "Flour": 1, "Oil": 1, "Spices": 1 },
+      "Butter Chicken": { "Chicken": 4, "Butter": 2, "Cream": 1, "Spices": 2 },
+      "Palak Paneer": { "Spinach": 3, "Paneer": 2, "Cream": 1, "Spices": 1 },
+      "Dal Tadka": { "Lentils": 3, "Oil": 1, "Spices": 2, "Tomatoes": 2 },
+      "Fried Rice": { "Rice": 4, "Oil": 2, "Spices": 1, "Tomatoes": 1 },
+      "Manchurian": { "Cabbage": 2, "Flour": 2, "Spices": 2, "Oil": 2 },
+      "Noodles": { "Flour": 3, "Oil": 2, "Spices": 1, "Vegetables": 2 },
+      "Gulab Jamun": { "Flour": 2, "Milk": 2, "Sugar": 3, "Gulab Syrup": 2 },
+      "Rasgulla": { "Milk": 4, "Sugar": 3, "Cheese": 2, "Flour": 1 },
+      "Ice Cream": { "Milk": 4, "Sugar": 2, "Cream": 3, "Flavors": 1 }
+    };
+
+    let orders = [];
+
+    function showSection(id) {
+      ['menu-section', 'orders-section', 'inventory-section'].forEach(sec => {
+        document.getElementById(sec).classList.add('hidden');
+      });
+      document.getElementById(id).classList.remove('hidden');
+      if (id === 'inventory-section') loadInventory();
+      if (id === 'orders-section') loadOrders();
+      if (id === 'menu-section') resetOrderForm();
+    }
+
+    function increase(btn) {
+      let span = btn.previousElementSibling;
+      let qty = parseInt(span.textContent);
+      if (qty < 99) span.textContent = qty + 1;
+    }
+
+    function decrease(btn) {
+      let span = btn.nextElementSibling;
+      let qty = parseInt(span.textContent);
+      if (qty > 0) span.textContent = qty - 1;
+    }
+
+    function resetOrderForm() {
+      document.querySelectorAll('.qty-controls span').forEach(span => span.textContent = '0');
+      document.getElementById('custName').value = '';
+      document.getElementById('custContact').value = '';
+      document.getElementById('tableNo').value = '';
+    }
+
+    function loadInventory() {
+      const tbody = document.getElementById('inventory-body');
+      tbody.innerHTML = '';
+      Object.entries(inventoryData).forEach(([ing, qty]) => {
+        const tr = document.createElement('tr');
+        if (qty <= 5) tr.classList.add('low-stock');
+        tr.innerHTML = `<td>${ing}</td><td>${qty}</td><td>${qty > 5 ? 'Available' : 'Low Stock'}</td><td><button class="restock-button" onclick="restockIngredient('${ing}')">Restock</button></td>`;
+        tbody.appendChild(tr);
+      });
+      const list = Object.entries(menuIngredients).map(([dish, ings]) =>
+        `${dish}:\n${Object.entries(ings).map(([i, q]) => `  - ${i}: ${q}`).join('\n')}`).join('\n\n');
+      document.getElementById('ingredients-list').textContent = list;
+    }
+
+    function restockIngredient(ingredient) {
+      inventoryData[ingredient] = MAX_QUANTITY;
+      loadInventory();
+      alert(`${ingredient} restocked.`);
+    }
+
+    function placeOrder() {
+      const name = document.getElementById('custName').value.trim();
+      if (!name) return alert('Name is required.');
+      const contact = document.getElementById('custContact').value.trim();
+      const table = document.getElementById('tableNo').value.trim();
+      const orderItems = {};
+      document.querySelectorAll('.menu-item').forEach(item => {
+        const itemName = item.querySelector('.name').textContent;
+        const qty = parseInt(item.querySelector('.qty-controls span').textContent);
+        if (qty > 0) orderItems[itemName] = qty;
+      });
+      if (Object.keys(orderItems).length === 0) return alert('Select at least one item.');
+      const needed = {};
+      for (const [item, qty] of Object.entries(orderItems)) {
+        const ings = menuIngredients[item];
+        for (const [ing, amt] of Object.entries(ings)) {
+          needed[ing] = (needed[ing] || 0) + amt * qty;
+        }
+      }
+      for (const [ing, amt] of Object.entries(needed)) {
+        if ((inventoryData[ing] || 0) < amt) return alert(`Not enough ${ing} in stock.`);
+      }
+      for (const [ing, amt] of Object.entries(needed)) {
+        inventoryData[ing] -= amt;
+      }
+      orders.push({ name, contact, table: table || 'N/A', items: orderItems });
+      alert('Order placed successfully!');
+      showSection('orders-section');
+    }
+
+    function loadOrders() {
+      const tbody = document.getElementById('orders-body');
+      tbody.innerHTML = '';
+      orders.forEach(order => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${order.name}</td><td>${order.contact}</td><td>${order.table}</td><td>${Object.entries(order.items).map(([item, qty]) => `${item} × ${qty}`).join('<br>')}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+</body>
+</html>
