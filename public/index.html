@@ -302,26 +302,28 @@
     }
 
     function loadInventory() {
-      const tbody = document.getElementById('inventory-body');
-      tbody.innerHTML = '';
-      Object.entries(inventoryData).forEach(([ing, qty]) => {
-      const tr = document.createElement('tr');
-      if (qty <= 5) tr.classList.add('low-stock');
-      tr.innerHTML = `
-      <td>${ing}</td>
-      <td id="qty-${ing}">${qty}</td>
-      <td>${qty > 5 ? 'Available' : 'Low Stock'}</td>
-      <td>
-        <input type="number" id="input-${ing}" min="1" placeholder="Qty" style="width:60px;"/>
-        <button class="restock-button" onclick="restockIngredient('${ing}')">Restock</button>
-      </td>`;
-      tbody.appendChild(tr);
-    });
+      fetch('/api/inventory')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.getElementById('inventory-body');
+          tbody.innerHTML = '';
 
-  const list = Object.entries(menuIngredients).map(([dish, ings]) =>
-    `${dish}:\n${Object.entries(ings).map(([i, q]) => `  - ${i}: ${q}`).join('\n')}`).join('\n\n');
-  document.getElementById('ingredients-list').textContent = list;
-}
+          data.forEach(({ ingredient, quantity }) => {
+            const tr = document.createElement('tr');
+            if (quantity <= 5) tr.classList.add('low-stock');
+            tr.innerHTML = `
+              <td>${ingredient}</td>
+              <td id="qty-${ingredient}">${quantity}</td>
+              <td>${quantity > 5 ? 'Available' : 'Low Stock'}</td>
+              <td>
+                <input type="number" id="input-${ingredient}" placeholder="Qty" min="1" />
+                <button class="restock-button" onclick="restockIngredient('${ingredient}')">Restock</button>
+              </td>`;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
 
     function restockIngredient(ingredient) {
       const input = document.getElementById(`input-${ingredient}`);

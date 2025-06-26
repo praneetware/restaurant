@@ -12,7 +12,7 @@ app.use(express.json());
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',           // ⚠️ Replace if you use a different MySQL user
-  password: '',           // ⚠️ Add password if your MySQL needs it
+  password: 'Boojho@123',           // ⚠️ Add password if your MySQL needs it
   database: 'restaurant_db'  // ⚠️ Ensure this DB and table `ingredients` exists
 });
 
@@ -55,6 +55,17 @@ app.post('/api/restock', (req, res) => {
     }
   );
 });
+
+app.get('/api/inventory', (req, res) => {
+  db.query('SELECT * FROM inventory', (err, results) => {
+    if (err) {
+      console.error('Failed to fetch inventory:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
 
 // ✅ Start the server
 app.listen(PORT, () => {
